@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Kênh liên lạc an toàn</title>
+    <style>
+        :root {
+            --pri: #2563eb;
+            --ph: #1d4ed8;
+            --dan: #dc2626;
+            --bg: #eef2f7;
+            --bd: #e2e8f0;
+            --mut: #64748b
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            font-family: 'Segoe UI',system-ui,sans-serif;
+            background: var(--bg);
+            color: #1e293b;
+            margin: 0
+        }
+
+        header {
+            background: linear-gradient(135deg,#1e40af,#2563eb);
+            color: #fff;
+            padding: 18px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,.15)
+        }
+
+            header h1 {
+                margin: 0;
+                font-size: 1.4em
+            }
+
+            header p {
+                margin: 4px 0 0;
+                opacity: .85;
+                font-size: .85em
+            }
+
+        .wrap {
+            max-width: 1200px;
+            margin: 18px auto;
+            padding: 0 16px
+        }
+
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 12px
+        }
+
+            .tabs button {
+                background: #fff;
+                color: #1e293b;
+                border: 1px solid var(--bd);
+                border-radius: 8px;
+                padding: 7px 13px;
+                font-size: .83em;
+                cursor: pointer
+            }
+
+                .tabs button:hover {
+                    background: #f1f5f9
+                }
+
+                .tabs button.active {
+                    background: var(--pri);
+                    color: #fff;
+                    border-color: var(--pri);
+                    font-weight: 600
+                }
+
+        section {
+            background: #fff;
+            border-radius: 10px;
+            padding: 16px 18px;
+            margin-bottom: 14px;
+            border: 1px solid var(--bd);
+            display: none
+        }
+
+            section.active {
+                display: block
+            }
+
+            section h2 {
+                margin: 0 0 10px;
+                padding-bottom: 6px;
+                color: #1e40af;
+                border-bottom: 2px solid var(--pri);
+                font-size: 1.02em
+            }
+
+        label {
+            font-size: .85em;
+            color: #334155;
+            margin: 0 4px
+        }
+
+        input[type=text], input[type=number], select {
+            padding: 6px 9px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: .88em;
+            outline: none
+        }
+
+            input:focus, select:focus {
+                border-color: var(--pri);
+                box-shadow: 0 0 0 3px rgba(37,99,235,.15)
+            }
+
+        button.btn {
+            background: var(--pri);
+            color: #fff;
+            border: 0;
+            border-radius: 6px;
+            padding: 7px 13px;
+            cursor: pointer;
+            font-size: .85em;
+            margin: 3px 3px
+        }
+
+            button.btn:hover {
+                background: var(--ph)
+            }
+
+            button.btn.danger {
+                background: var(--dan)
+            }
+
+                button.btn.danger:hover {
+                    background: #b91c1c
+                }
+
+            button.btn.gray {
+                background: #64748b
+            }
+
+                button.btn.gray:hover {
+                    background: #475569
+                }
+
+        pre {
+            background: #0f172a;
+            color: #e2e8f0;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: .78em;
+            max-height: 320px;
+            overflow: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+            margin: 8px 0 0
+        }
+
+        .row {
+            margin: 8px 0;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px
+        }
+
+        .grid3 {
+            display: grid;
+            grid-template-columns: repeat(3,1fr);
+            gap: 12px
+        }
+
+        .grid2 {
+            display: grid;
+            grid-template-columns: repeat(2,1fr);
+            gap: 12px
+        }
+
+        .card {
+            border: 1px solid var(--bd);
+            border-radius: 8px;
+            padding: 10px;
+            background: #f8fafc
+        }
+
+            .card h3 {
+                margin: 0 0 8px;
+                font-size: .92em;
+                color: #1e40af
+            }
+
+        .hint {
+            color: var(--mut);
+            font-size: .8em
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            font-size: .83em;
+            margin-top: 8px;
+            background: #fff
+        }
+
+        th, td {
+            border: 1px solid var(--bd);
+            padding: 6px 8px;
+            text-align: left
+        }
+
+        th {
+            background: #f1f5f9
+        }
+
+        @media(max-width:768px) {
+            .grid3, .grid2 {
+                grid-template-columns: 1fr
+            }
+        }
+    </style>
+</head>
+<body>
+    <header><h1>🔐 Kênh liên lạc an toàn</h1><p>DH · Chữ ký · mini-PKI · AEAD · Ví dụ số nhỏ</p></header>
+    <div class="wrap">
+        <div class="tabs" id="tabs"></div>
+
+        <!-- TAB 1 -->
+        <section id="tab1" class="active">
+            <h2>1. Sinh khóa CA / Alice / Bob</h2>
+            <div class="grid3">
+                <div class="card">
+                    <h3>CA</h3>
+                    <label>Alg</label><select id="algCA"><option>RSA</option><option>ECDSA</option><option>ED25519</option></select>
+                    <label>bits</label><input type="number" id="bitsCA" value="2048" style="width:70px">
+                    <button class="btn" onclick="genKey('CA')">Sinh khóa</button><pre id="outCA">—</pre>
+                </div>
+                <div class="card">
+                    <h3>Alice</h3>
+                    <label>Alg</label><select id="algAlice"><option>RSA</option><option>ECDSA</option><option>ED25519</option></select>
+                    <label>bits</label><input type="number" id="bitsAlice" value="2048" style="width:70px">
+                    <button class="btn" onclick="genKey('Alice')">Sinh khóa</button><pre id="outAlice">—</pre>
+                </div>
+                <div class="card">
+                    <h3>Bob</h3>
+                    <label>Alg</label><select id="algBob"><option>RSA</option><option>ECDSA</option><option>ED25519</option></select>
+                    <label>bits</label><input type="number" id="bitsBob" value="2048" style="width:70px">
+                    <button class="btn" onclick="genKey('Bob')">Sinh khóa</button><pre id="outBob">—</pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2 -->
+        <section id="tab2">
+            <h2>2. Hàm băm, hiệu ứng thác &amp; HMAC</h2>
+            <div class="row">
+                <label>Văn bản</label>
+                <input type="text" id="hashText" value="abc" style="flex:1;min-width:200px">
+                <button class="btn" onclick="doHash()">Băm</button>
+            </div>
+            <pre id="outHash">—</pre>
+            <div class="row" style="margin-top:14px">
+                <label>HMAC key</label>
+                <input type="text" id="hmacKey" value="key" style="width:140px">
+                <label>msg</label>
+                <input type="text" id="hmacMsg" value="The quick brown fox jumps over the lazy dog" style="flex:1;min-width:200px">
+                <button class="btn" onclick="doHMAC()">Tính HMAC</button>
+            </div>
+            <pre id="outHMAC">—</pre>
+        </section>
+
+        <!-- TAB 3 -->
+        <section id="tab3">
+            <h2>3. Ký số &amp; xác minh</h2>
+            <div class="row">
+                <label>Người ký</label>
+                <select id="signEntity"><option>Alice</option><option>Bob</option></select>
+                <label>Thông điệp</label>
+                <input type="text" id="signMsg" value="Hello secure world" style="flex:1;min-width:200px">
+            </div>
+            <div class="row">
+                <button class="btn" onclick="doSign()">Ký</button>
+                <button class="btn gray" onclick="doVerify()">Xác minh</button>
+                <button class="btn danger" onclick="tamperMsg()">Sửa 1 byte</button>
+                <button class="btn danger" onclick="fakeSig()">Chữ ký người khác</button>
+            </div>
+            <pre id="outSign">—</pre>
+        </section>
+
+        <!-- TAB 4 -->
+        <section id="tab4">
+            <h2>4. Mini-PKI — Chứng thư do CA ký</h2>
+            <div class="row">
+                <label>Subject</label>
+                <select id="certSubject"><option>Alice</option><option>Bob</option></select>
+                <label>Hiệu lực (ngày)</label><input type="number" id="certDays" value="365" style="width:80px">
+                <button class="btn" onclick="issueCert()">CA cấp</button>
+                <button class="btn gray" onclick="verifyCert()">Kiểm tra</button>
+            </div>
+            <div class="row">
+                <button class="btn danger" onclick="tamperCert()">Sửa chữ ký</button>
+                <button class="btn danger" onclick="expireCert()">Hết hạn</button>
+                <button class="btn danger" onclick="revokeCert()">Thu hồi</button>
+                <button class="btn gray" onclick="verifyCert()">Khôi phục &amp; kiểm tra</button>
+            </div>
+            <pre id="outCert">—</pre>
+        </section>
+
+        <!-- TAB 5 -->
+        <section id="tab5">
+            <h2>5. Trao đổi khóa DH &amp; AEAD</h2>
+            <div class="grid3">
+                <div class="card">
+                    <h3>DH số nhỏ</h3>
+                    <div class="row">
+                        <label>p</label><input type="number" id="dhP" value="23" style="width:70px">
+                        <label>g</label><input type="number" id="dhG" value="5" style="width:70px">
+                    </div>
+                    <div class="row">
+                        <label>a</label><input type="number" id="dhA" value="6" style="width:70px">
+                        <label>b</label><input type="number" id="dhB" value="15" style="width:70px">
+                    </div>
+                    <button class="btn" onclick="doDH()">Tính</button><pre id="outDH">—</pre>
+                </div>
+                <div class="card">
+                    <h3>ECDH P-256 + AES-GCM</h3>
+                    <button class="btn" onclick="doECDH()">Chạy demo</button><pre id="outECDH">—</pre>
+                </div>
+                <div class="card">
+                    <h3>AEAD</h3>
+                    <label>Alg</label><select id="aeadAlg"><option>AES</option><option>CHACHA</option></select>
+                    <label>Plaintext</label><input type="text" id="aeadPlain" value="Hello AEAD" style="width:100%">
+                    <label>AAD</label><input type="text" id="aeadAad" value="header" style="width:100%">
+                    <button class="btn" onclick="doAEAD()">Mã hóa</button>
+                    <button class="btn danger" onclick="tamperAEAD()">Sửa 1 bit</button>
+                    <pre id="outAEAD">—</pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 6 -->
+        <section id="tab6">
+            <h2>6. Mô phỏng MITM</h2>
+            <div class="row">
+                <label>p</label><input type="number" id="mitmP" value="23" style="width:70px">
+                <label>g</label><input type="number" id="mitmG" value="5" style="width:70px">
+                <label>a(Alice)</label><input type="number" id="mitmA" value="6" style="width:70px">
+                <label>b(Bob)</label><input type="number" id="mitmB" value="15" style="width:70px">
+                <label>e(Eve)</label><input type="number" id="mitmE" value="9" style="width:70px">
+            </div>
+            <div class="row">
+                <button class="btn danger" onclick="doMitmPlain()">DH không xác thực</button>
+                <button class="btn" onclick="doMitmAuth()">DH có chữ ký</button>
+            </div>
+            <pre id="outMITM">—</pre>
+        </section>
+
+        <!-- TAB 7 -->
+        <section id="tab7">
+            <h2>7. Benchmark</h2>
+            <div class="row">
+                <label>n lần đo</label><input type="number" id="benchN" value="20" style="width:70px">
+                <label>RSA bits</label><input type="number" id="benchBits" value="2048" style="width:80px">
+                <label>AEAD size (MB)</label><input type="number" id="benchMB" value="1" style="width:70px">
+            </div>
+            <div class="row">
+                <button class="btn" onclick="doBenchSign()">Benchmark chữ ký</button>
+                <button class="btn" onclick="doBenchAEAD()">Benchmark AEAD</button>
+            </div>
+            <div id="outBench"></div>
+        </section>
+
+        <!-- TAB 8 -->
+        <section id="tab8">
+            <h2>8. Ví dụ số nhỏ (toy)</h2>
+            <div class="grid2">
+                <div class="card">
+                    <h3>RSA thô</h3>
+                    <div class="row">
+                        <label>n</label><input type="number" id="rsaN" value="1247" style="width:80px">
+                        <label>e</label><input type="number" id="rsaE" value="59" style="width:60px">
+                        <label>d</label><input type="number" id="rsaD" value="299" style="width:60px">
+                        <label>m</label><input type="number" id="rsaM" value="20" style="width:60px">
+                    </div>
+                    <button class="btn" onclick="doRsaToy()">Ký &amp; kiểm tra</button>
+                    <button class="btn danger" onclick="doRsaForgery()">Tấn công tính nhân</button>
+                    <div class="row">
+                        <label>m1</label><input type="number" id="rsaM1" value="5" style="width:60px">
+                        <label>m2</label><input type="number" id="rsaM2" value="7" style="width:60px">
+                    </div>
+                    <pre id="outRsa">—</pre>
+                </div>
+
+                <div class="card">
+                    <h3>ElGamal</h3>
+                    <div class="row">
+                        <label>p</label><input type="number" id="egP" value="23" style="width:60px">
+                        <label>g</label><input type="number" id="egG" value="5" style="width:60px">
+                        <label>x</label><input type="number" id="egX" value="6" style="width:60px">
+                    </div>
+                    <div class="row">
+                        <label>m</label><input type="number" id="egM" value="10" style="width:60px">
+                        <label>k</label><input type="number" id="egK" value="7" style="width:60px">
+                    </div>
+                    <button class="btn" onclick="doElGamal()">Ký &amp; kiểm tra</button>
+                    <pre id="outEG">—</pre>
+                </div>
+
+                <div class="card">
+                    <h3>ECDSA E<sub>p</sub>(a,b)</h3>
+                    <div class="row">
+                        <label>p</label><input type="number" id="ecP" value="17" style="width:60px">
+                        <label>a</label><input type="number" id="ecA" value="3" style="width:60px">
+                        <label>b</label><input type="number" id="ecB" value="5" style="width:60px">
+                    </div>
+                    <div class="row">
+                        <label>Gx</label><input type="number" id="ecGx" value="5" style="width:60px">
+                        <label>Gy</label><input type="number" id="ecGy" value="3" style="width:60px">
+                        <label>n</label><input type="number" id="ecN" value="23" style="width:60px">
+                    </div>
+                    <div class="row">
+                        <label>d</label><input type="number" id="ecD" value="7" style="width:60px">
+                        <label>h</label><input type="number" id="ecH" value="10" style="width:60px">
+                        <label>k</label><input type="number" id="ecK" value="5" style="width:60px">
+                    </div>
+                    <button class="btn" onclick="doEcdsaToy()">Ký &amp; kiểm tra</button>
+                    <pre id="outEC">—</pre>
+                </div>
+
+                <div class="card">
+                    <h3>Blom</h3>
+                    <div class="row">
+                        <label>p</label><input type="number" id="blP" value="17" style="width:60px">
+                        <label>r_U</label><input type="number" id="blRU" value="12" style="width:60px">
+                        <label>r_V</label><input type="number" id="blRV" value="7" style="width:60px">
+                    </div>
+                    <div class="hint">D mặc định [[8,7],[7,2]] (có thể sửa trong code JS)</div>
+                    <button class="btn" onclick="doBlom()">Tính khóa chung</button>
+                    <pre id="outBlom">—</pre>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        const $ = id => document.getElementById(id);
+        const show = (id, txt) => $(id).textContent = txt;
+        async function post(url, body) {
+            try {
+                const r = await fetch(url, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body || {})
+                });
+                const t = await r.text();
+                try { return JSON.parse(t); } catch { return { error: 'Server trả không phải JSON: ' + t.slice(0, 200) }; }
+            } catch (e) { return { error: 'Không kết nối server: ' + e.message }; }
+        }
+        const num = id => parseInt($(id).value) || 0;
+
+        // Tabs
+        const TABS = [['tab1', '1. Sinh khóa'], ['tab2', '2. Băm/HMAC'], ['tab3', '3. Ký số'],
+        ['tab4', '4. PKI'], ['tab5', '5. DH/AEAD'], ['tab6', '6. MITM'],
+        ['tab7', '7. Benchmark'], ['tab8', '8. Toy']];
+        TABS.forEach(([id, label], i) => {
+            const b = document.createElement('button');
+            b.textContent = label; if (i === 0) b.classList.add('active');
+            b.onclick = () => {
+                document.querySelectorAll('.tabs button').forEach(x => x.classList.remove('active'));
+                document.querySelectorAll('section').forEach(x => x.classList.remove('active'));
+                b.classList.add('active'); $(id).classList.add('active');
+            };
+            $('tabs').appendChild(b);
+        });
+
+        // 1
+        async function genKey(e) {
+            show('out' + e, 'Đang sinh khóa...');
+            const r = await post('/api/genkey', { entity: e, alg: $('alg' + e).value, bits: num('bits' + e) });
+            if (r.error) return show('out' + e, '❌ ' + r.error);
+            show('out' + e, `Algorithm: ${r.alg}\nFingerprint: ${r.fingerprint}\n\n${r.public_pem}`);
+        }
+
+        // 2
+        async function doHash() {
+            const r = await post('/api/hash', { text: $('hashText').value });
+            if (r.error) return show('outHash', '❌ ' + r.error);
+            let s = `SHA-256: ${r.sha256}\nSHA-1  : ${r.sha1}\nMD5    : ${r.md5}  (chỉ so sánh)`;
+            if (r.avalanche_bits !== undefined)
+                s += `\n\nHiệu ứng thác: "${r.avalanche_pair[0]}" vs "${r.avalanche_pair[1]}"`
+                    + `\n→ khác ${r.avalanche_bits}/256 bit (kỳ vọng ≈128)`;
+            show('outHash', s);
+        }
+        async function doHMAC() {
+            const r = await post('/api/hmac', { key: $('hmacKey').value, msg: $('hmacMsg').value });
+            if (r.error) return show('outHMAC', '❌ ' + r.error);
+            show('outHMAC', `Tag: ${r.tag}\nThẻ đúng: ${r.valid}\nThẻ sai (thêm 1 byte): ${r.invalid_demo}`);
+        }
+
+        // 3
+        let lastSig = null;
+        async function doSign() {
+            const r = await post('/api/sign', { entity: $('signEntity').value, msg: $('signMsg').value });
+            if (r.error) return show('outSign', '❌ ' + r.error);
+            lastSig = r.signature_b64;
+            show('outSign', `Ký bằng ${$('signEntity').value}\nChữ ký: ${r.signature_b64}\n`
+                + `Kích thước: ${r.sig_size} byte | ${r.sign_ms.toFixed(3)} ms`);
+        }
+        async function doVerify() {
+            if (!lastSig) return show('outSign', '⚠️ Bấm "Ký" trước.');
+            const r = await post('/api/verify', {
+                entity: $('signEntity').value,
+                msg: $('signMsg').value, signature_b64: lastSig
+            });
+            if (r.error) return show('outSign', '❌ ' + r.error);
+            show('outSign', `${r.ok ? '✅ HỢP LỆ' : '❌ KHÔNG HỢP LỆ'}\nLý do: ${r.reason}\n`
+                + `Thời gian: ${r.verify_ms.toFixed(3)} ms`);
+        }
+        function tamperMsg() {
+            const v = $('signMsg').value;
+            $('signMsg').value = v.length ? (v[0] === 'X' ? 'Y' : 'X') + v.slice(1) : 'X';
+            doVerify();
+        }
+        async function fakeSig() {
+            const other = $('signEntity').value === 'Alice' ? 'Bob' : 'Alice';
+            const r = await post('/api/sign', { entity: other, msg: $('signMsg').value });
+            if (r.error) return show('outSign', '❌ ' + r.error);
+            const v = await post('/api/verify', {
+                entity: $('signEntity').value,
+                msg: $('signMsg').value, signature_b64: r.signature_b64
+            });
+            if (v.error) return show('outSign', '❌ ' + v.error);
+            show('outSign', `Dùng chữ ký của ${other} để verify với ${$('signEntity').value}:\n`
+                + (v.ok ? '✅ HỢP LỆ (?! không mong đợi)' : '❌ KHÔNG HỢP LỆ') + `\nLý do: ${v.reason}`);
+        }
+
+        // 4
+        let curCert = null;
+        async function issueCert() {
+            const r = await post('/api/issue_cert', { subject: $('certSubject').value, days: num('certDays') });
+            if (r.error) return show('outCert', '❌ ' + r.error);
+            curCert = r;
+            show('outCert', 'Đã cấp:\n' + JSON.stringify(r, null, 2));
+        }
+        async function verifyCert() {
+            if (!curCert) return show('outCert', '⚠️ Chưa có chứng thư.');
+            const r = await post('/api/verify_cert', { cert: curCert, subject: $('certSubject').value });
+            if (r.error) return show('outCert', '❌ ' + r.error);
+            let s = (r.ok ? '✅ HỢP LỆ' : '❌ KHÔNG HỢP LỆ');
+            if (r.errors && r.errors.length) s += '\nLỗi:\n- ' + r.errors.join('\n- ');
+            show('outCert', s);
+        }
+        function tamperCert() {
+            if (!curCert) return show('outCert', '⚠️ Chưa có chứng thư.');
+            curCert.signature = 'AAAA' + curCert.signature.slice(4);
+            verifyCert();
+        }
+        function expireCert() {
+            if (!curCert) return show('outCert', '⚠️ Chưa có chứng thư.');
+            curCert.not_after = new Date(Date.now() - 86400000).toISOString();
+            verifyCert();
+        }
+        async function revokeCert() {
+            if (!curCert) return show('outCert', '⚠️ Chưa có chứng thư.');
+            await post('/api/revoke', { serial: curCert.serial });
+            verifyCert();
+        }
+
+        // 5
+        async function doDH() {
+            const r = await post('/api/dh_small', { p: num('dhP'), g: num('dhG'), a: num('dhA'), b: num('dhB') });
+            if (r.error) return show('outDH', '❌ ' + r.error);
+            show('outDH', `p=${r.p}, g=${r.g}\na=${r.a}, A=g^a=${r.A}\nb=${r.b}, B=g^b=${r.B}\n`
+                + `K_Alice = ${r.K_Alice}\nK_Bob   = ${r.K_Bob}\nKhớp: ${r.match}`);
+        }
+        async function doECDH() {
+            show('outECDH', 'Đang chạy...');
+            const r = await post('/api/ecdh_demo', {});
+            if (r.error) return show('outECDH', '❌ ' + r.error);
+            show('outECDH', `Session key hash: ${r.session_key_hash}\nAAD: ${r.aad}\n`
+                + `Nonce: ${r.nonce_b64}\nCiphertext: ${r.ct_b64}\nTag: ${r.tag_b64}`);
+        }
+        let lastAEAD = null;
+        function b64(bytes) { return btoa(String.fromCharCode.apply(null, bytes)); }
+        async function doAEAD() {
+            const key = new Uint8Array(32); crypto.getRandomValues(key);
+            const pt = new TextEncoder().encode($('aeadPlain').value);
+            const r = await post('/api/aead', {
+                alg: $('aeadAlg').value,
+                key_b64: b64(key), plaintext_b64: b64(pt), aad: $('aeadAad').value
+            });
+            if (r.error) return show('outAEAD', '❌ ' + r.error);
+            lastAEAD = { alg: $('aeadAlg').value, key_b64: b64(key), aad: $('aeadAad').value, ...r };
+            show('outAEAD', `Mã hóa (${lastAEAD.alg})\nNonce: ${r.nonce_b64}\nCT: ${r.ct_b64}\nTag: ${r.tag_b64}`);
+        }
+        async function tamperAEAD() {
+            if (!lastAEAD) return show('outAEAD', '⚠️ Chưa mã hóa.');
+            let bytes = atob(lastAEAD.ct_b64).split('').map(c => c.charCodeAt(0));
+            if (!bytes.length) bytes = [0];
+            bytes[0] ^= 1;
+            const r = await post('/api/aead_decrypt', {
+                alg: lastAEAD.alg, key_b64: lastAEAD.key_b64,
+                nonce_b64: lastAEAD.nonce_b64, ct_b64: b64(bytes), tag_b64: lastAEAD.tag_b64, aad: lastAEAD.aad
+            });
+            if (r.error) return show('outAEAD', '❌ ' + r.error);
+            show('outAEAD', r.ok ? '⚠️ Giải mã THÀNH CÔNG (không mong đợi)' : '✅ TỪ CHỐI\nLý do: ' + r.reason);
+        }
+
+        // 6
+        async function doMitmPlain() {
+            const r = await post('/api/mitm_plain', {
+                p: num('mitmP'), g: num('mitmG'),
+                a: num('mitmA'), b: num('mitmB'), e: num('mitmE')
+            });
+            if (r.error) return show('outMITM', '❌ ' + r.error);
+            show('outMITM', r.log.join('\n'));
+        }
+        async function doMitmAuth() {
+            const r = await post('/api/mitm_auth', { p: num('mitmP'), g: num('mitmG') });
+            if (r.error) return show('outMITM', '❌ ' + r.error);
+            show('outMITM', r.log.join('\n'));
+        }
+
+        // 7
+        async function doBenchSign() {
+            $('outBench').innerHTML = '<pre>Đang chạy...</pre>';
+            const rows = await post('/api/benchmark_sign', { n: num('benchN'), bits: num('benchBits') });
+            if (rows.error) { $('outBench').innerHTML = '<pre>❌ ' + rows.error + '</pre>'; return; }
+            let h = '<table><tr><th>Alg</th><th>Bits</th><th>Keygen(ms)</th><th>Ký(ms)</th>'
+                + '<th>Verify(ms)</th><th>Key(B)</th><th>Sig(B)</th></tr>';
+            rows.forEach(r => {
+                h += `<tr><td>${r.alg}</td><td>${r.bits}</td>`
+                + `<td>${r.keygen_ms.toFixed(2)}</td><td>${r.sign_ms.toFixed(2)}</td>`
+                + `<td>${r.verify_ms.toFixed(2)}</td><td>${r.key_size.toFixed(0)}</td>`
+                + `<td>${r.sig_size.toFixed(0)}</td></tr>`;
+            });
+            $('outBench').innerHTML = h + '</table>';
+        }
+        async function doBenchAEAD() {
+            $('outBench').innerHTML = '<pre>Đang chạy...</pre>';
+            const r = await post('/api/benchmark_aead', { n: num('benchN'), size_mb: num('benchMB') });
+            if (r.error) { $('outBench').innerHTML = '<pre>❌ ' + r.error + '</pre>'; return; }
+            $('outBench').innerHTML = '<table>'
+                + `<tr><th>Thuật toán</th><th>${r.size_mb}MB (ms)</th></tr>`
+                + `<tr><td>AES-256-GCM</td><td>${r.aes_gcm_ms.toFixed(2)}</td></tr>`
+                + `<tr><td>ChaCha20-Poly1305</td><td>${r.chacha_ms.toFixed(2)}</td></tr>`
+                + '</table>';
+        }
+
+        // 8 TOY
+        async function doRsaToy() {
+            const r = await post('/api/rsa_toy', { n: num('rsaN'), e: num('rsaE'), d: num('rsaD'), m: num('rsaM') });
+            if (r.error) return show('outRsa', '❌ ' + r.error);
+            show('outRsa', `n=${r.n}, e=${r.e}, d=${r.d}, m=${r.m}\n`
+                + `s = m^d mod n = ${r.s}\n`
+                + `Kiểm tra s^e mod n = ${r.m_check}\n`
+                + `Khớp m: ${r.ok ? '✅' : '❌'}`);
+        }
+        async function doRsaForgery() {
+            const r = await post('/api/rsa_forgery', {
+                n: num('rsaN'), e: num('rsaE'), d: num('rsaD'),
+                m1: num('rsaM1'), m2: num('rsaM2')
+            });
+            if (r.error) return show('outRsa', '❌ ' + r.error);
+            show('outRsa', `sig(${r.m1}) = ${r.sig1}\nsig(${r.m2}) = ${r.sig2}\n`
+                + `sig(${r.m1})*sig(${r.m2}) mod n = ${r.sig_forged}\n`
+                + `=> sig(${r.m1}*${r.m2}) = sig(${r.target}) = ${r.sig_forged}  ⚠️ GIẢ MẠO\n`
+                + `Verify: (${r.sig_forged})^e mod n = ${r.m_recovered} = ${r.target} ${r.ok ? '✅' : '❌'}`);
+        }
+        async function doElGamal() {
+            const r = await post('/api/elgamal_toy', { p: num('egP'), g: num('egG'), x: num('egX'), m: num('egM'), k: num('egK') });
+            if (r.error) return show('outEG', '❌ ' + r.error);
+            show('outEG', `p=${r.p}, g=${r.g}, x=${r.x}, m=${r.m}, k=${r.k}\n`
+                + `y = g^x = ${r.y}\nr = g^k = ${r.r}\n`
+                + `s = (m - x*r)*k^-1 mod (p-1) = ${r.s}\n`
+                + `Verify: g^m = ${r.left}, y^r*r^s = ${r.right} => ${r.ok ? '✅' : '❌'}`);
+        }
+        async function doEcdsaToy() {
+            const r = await post('/api/ecdsa_toy', {
+                p: num('ecP'), a: num('ecA'), b: num('ecB'),
+                Gx: num('ecGx'), Gy: num('ecGy'), n: num('ecN'), d: num('ecD'), h: num('ecH'), k: num('ecK')
+            });
+            if (r.error) return show('outEC', '❌ ' + r.error);
+            show('outEC', `Đường cong E_${r.p}(${r.a},${r.b}), G=${JSON.stringify(r.G)}, n=${r.n}\n`
+                + `Q = d*G = ${JSON.stringify(r.Q)}\n`
+                + `(r,s) = (${r.r}, ${r.s})\n`
+                + `Điểm kiểm tra X = ${JSON.stringify(r.X)}\n`
+                + `X.x mod n == r ? ${r.ok ? '✅' : '❌'}`);
+        }
+        async function doBlom() {
+            const D = [[8, 7], [7, 2]];
+            const r = await post('/api/blom_toy', { p: num('blP'), r_U: num('blRU'), r_V: num('blRV'), D: D });
+            if (r.error) return show('outBlom', '❌ ' + r.error);
+            show('outBlom', `p=${r.p}, r_U=${r.r_U}, r_V=${r.r_V}\n`
+                + `D = ${JSON.stringify(r.D)}\n`
+                + `g_U(x) = ${r.gU_coeffs[0]} + ${r.gU_coeffs[1]}x\n`
+                + `g_V(x) = ${r.gV_coeffs[0]} + ${r.gV_coeffs[1]}x\n`
+                + `K_U = g_U(r_V) = ${r.K_U}\nK_V = g_V(r_U) = ${r.K_V}\n`
+                + `Khớp: ${r.ok ? '✅' : '❌'}`);
+        }
+    </script>
+</body>
+</html>

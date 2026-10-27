@@ -1,0 +1,8 @@
+# Visual Studio cache/options
+.vs/
+x64/
+Debug/
+Release/
+*.aps
+*.suo
+*.user
